@@ -1,0 +1,1295 @@
+<!DOCTYPE html><html lang="en"><head><style>
+		html, body { height: 100%; margin: 0; padding: 0; font-family: Arial; color: #323232; overflow:hidden}
+
+		table { -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+		table { font-size: 12px; padding:0; margin:0; }
+		th { text-align: left; background: #333; color: #AAA; cursor: pointer; }
+		tr { height: 30px; }
+		th, td { padding: 5px;}
+
+        th:nth-child(1),  .table-main tr td:nth-child(1)  { width: 20%; }
+        th:nth-child(2),  .table-main tr td:nth-child(2)  { width: 12%; }
+        th:nth-child(3),  .table-main tr td:nth-child(3)  { width: 17%; }
+        th:nth-child(4),  .table-main tr td:nth-child(4)  { width: 13%; }
+        th:nth-child(5),  .table-main tr td:nth-child(5)  { width: 5%; }
+        th:nth-child(6),  .table-main tr td:nth-child(6)  { width: 5%; }
+        th:nth-child(7),  .table-main tr td:nth-child(7)  { width: 8%; }
+        th:nth-child(8),  .table-main tr td:nth-child(8)  { width: 5%; }
+        th:nth-child(9),  .table-main tr td:nth-child(9)  { width: 5%; }
+        th:nth-child(10), .table-main tr td:nth-child(10) { width: 5%; }
+        th:nth-child(11), .table-main tr td:nth-child(11) { width: 5%; }
+		
+		table.table-head { position: fixed; width: 80%; }
+		table.table-foot { position: fixed; width: 80%; bottom: 0%; }
+		table.table-main { margin-top:30px; margin-bottom: 30px; cursor: pointer; }
+		tr:nth-child(even) { background-color: #D7BD77; }
+		table.table-main tr:hover { outline: 1px solid black; }
+
+		table.table-right tr td { background: #333; color: #AAA;}
+
+		td.name { font-weight: bolder; }
+		td.errata:after { content: "!"; margin-left:5px; color: black; background: yellow; border-radius: 10px; padding: 0 5px 0 5px;}
+		td.errata:hover:after { content: "Errata";}
+		td.promo:after { content: "!"; margin-left:5px; color: black; background: orange; border-radius: 10px; padding: 0 5px 0 5px;}
+		td.promo:hover:after { content: "Promo";}
+		td.missing:after { content: "!"; margin-left:5px; color: black; background: red; border-radius: 10px; padding: 0 5px 0 5px;}
+		td.missing:hover:after { content: "Missing";}
+		td.incantation { background-color: #594C9A; color: #FFF; }
+		td.enchantment { background-color: #D27132; color: #FFF; }
+		td.creature    { background-color: #724A30; color: #FFF; }
+		td.equipment   { background-color: #62677A; color: #FFF; }
+		td.conjuration { background-color: #CADBB0; color: #FFF; }
+		td.attack      { background-color: #F38765; color: #FFF; }
+
+		span.plus, span.minus { border-radius: 10px; font-family: Courier New, monospace; font-size:20px; padding-left:5px; padding-right:5px;font-weight: bolder;}
+		span.plus { background: #0F0; margin-left: 5px; }
+		span.minus  { background: #F00;  margin-right: 5px; }
+
+		#slija img { width: 100%;}
+
+		span.selected_tab {
+			color: #FFF;
+		}
+		span.tab { 
+			cursor: pointer;
+		}
+
+		span.selected_tab:before {
+			color: #FFF;
+			content: "Hide ";
+		}
+		span.unselected_tab:before { 
+			content: "Show ";
+		}
+
+		#modal_wrapper.overlay::before {
+			content: " ";
+			width: 100%;
+			height: 100%;
+			position: fixed;
+			z-index: 100;
+			top: 0;
+			left: 0;
+			background: #000;
+			background: rgba(0,0,0,0.7);
+		}
+
+		#modal_window {
+			display: none;
+			z-index: 200;
+			position: fixed;
+			left: 50%;
+			top: 50%;
+			width: 360px;
+			overflow: auto;
+			padding: 10px 20px;
+			background: #fff;
+			border: 5px solid #999;
+			border-radius: 10px;
+			box-shadow: 0 0 10px rgba(0,0,0,0.5);
+		}
+
+		#modal_wrapper.overlay #modal_window {
+			display: block;
+		}		
+	</style>
+
+	<script async src="https://www.google-analytics.com/analytics.js"></script><script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/mages.js"></script>
+	<script type="text/javascript" src="js/cards.js"></script>
+	<script type="text/javascript" src="js/pvs_cards.js"></script>
+	<script type="text/javascript" src="js/lg_cards.js"></script>
+	<script type="text/javascript" src="js/academy_cards.js"></script>
+	<script type="text/javascript" src="js/acp_cards.js"></script>
+	<script type="text/javascript" src="js/acw_cards.js"></script>
+	<script type="text/javascript" src="js/academy_cards_2.js"></script>
+	<script type="text/javascript" src="js/academy_cards_3.js"></script>
+	<script type="text/javascript" src="js/promos.js"></script>
+	<script type="text/javascript" src="js/distance.js"></script>
+
+	<script>
+		if (window.location.protocol != "file:") {
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+			ga && ga('create', 'UA-97498913-1', 'auto');
+			ga && ga('send', 'pageview');
+		}
+		else
+			var ga = new Function();
+
+
+
+	</script>
+
+	<script>
+		var modal_callback = null;
+
+	    function open_modal(callback) {
+	    	modal_callback = callback
+	    	$("#modal_text").val("")
+			var modal_wrapper = document.getElementById("modal_wrapper");
+			var modal_window  = document.getElementById("modal_window");
+			modal_wrapper.className = "overlay";
+			var overflow = modal_window.offsetHeight - document.documentElement.clientHeight;
+			if(overflow > 0)
+				modal_window.style.maxHeight = (parseInt(window.getComputedStyle(modal_window).height) - overflow) + "px";
+			modal_window.style.marginTop = (-modal_window.offsetHeight)/2 + "px";
+			modal_window.style.marginLeft = (-modal_window.offsetWidth)/2 + "px";
+		};
+
+	    function close_modal(e) {
+			var modal_wrapper = document.getElementById("modal_wrapper");
+			var modal_window  = document.getElementById("modal_window");
+			modal_wrapper.className = "";
+	    };
+
+	    function modal_init() {
+			$("#modal_cancel").click(close_modal)
+			$("#modal_ok").click(function() {
+				close_modal();
+				modal_callback && modal_callback($("#modal_text").val());
+			})
+		};
+
+	</script>
+
+	<script>
+		var card_map = {};
+		for (var i = 0; i < cards.length; ++i) {
+		    card_map[cards[i]["data-code"]] = cards[i];
+		}
+
+		var school_to_idx = {
+		    'air': 0,
+		    'water': 1,
+		    'earth': 2,
+		    'fire': 3,
+		    'holy': 4,
+		    'dark': 5,
+		    'nature': 6,
+		    'arcane': 7,
+		    'war': 8,
+		    'mind': 9,
+		}
+
+		var _row_cache = {};
+		var mage = null;
+		var spellbook = {
+			cards: {},
+			mage: 0,
+		};
+		var sets = {
+			core: 1,
+			tome: 0,
+			tome2: 0,
+			cok: 0,
+			dvn: 0,
+			fvw: 0,
+			fif: 0,
+			bg1: 0,
+			pvs: 0,
+			lg: 0,
+			bvw: 0,
+			acp: 0,
+			acw: 0,
+			promo: 0,
+			afm: 0,
+			awl: 0,
+			adr: 0,
+			ael: 0,
+		};
+
+		$(document).ready(function() {
+			load_sets();
+			prepare(true);
+			bind();
+			modal_init();
+		});
+
+		function prepare(initial) {
+			load();
+			mage = mages[spellbook.mage];
+			$("#select_mage").val(mages.indexOf(mage));
+			for (var card_code in _row_cache)
+				update_row(card_code);
+			fill_data();
+			sort_by_column([1, 0]);
+			update_spellbook();
+			show_mage();
+			var s = 0;
+			for (set in sets)
+				s += sets[set]
+			set_tab_visibility("sets", s == 0);
+			set_tab_visibility("book", true);
+			if (!initial)
+				ga && ga('send', { hitType: 'event', eventCategory: 'mage', eventAction: 'slot', eventLabel: $("#select_slot").val() });		
+		}
+
+		function load() {
+			spellbook = { cards: {}, mage: 0, };
+			if (typeof(Storage) == "undefined")
+				return;
+
+			var sb = window.localStorage.getItem("mw-spb-" + $("#select_slot").val());
+			if (!sb)
+				return;
+			try { spellbook = JSON.parse(sb); }
+			catch (e) { }
+		}
+
+		function save() {
+			if (typeof(Storage) == "undefined")
+				return;
+			window.localStorage.setItem("mw-spb-" + $("#select_slot").val(), JSON.stringify(spellbook));
+		}
+
+		function load_sets() {
+			spellbook = { cards: {}, mage: 0, };
+			if (typeof(Storage) == "undefined")
+				return;
+
+			var sb = window.localStorage.getItem("mw-sets");
+			if (!sb)
+				return;
+			try { sets = JSON.parse(sb); }
+			catch (e) { 
+				return;
+			}
+			if (!sets.pvs)
+				sets.pvs = 0;
+			if (!sets.lg)
+				sets.lg = 0;
+			if (!sets.bvw)
+				sets.bvw = 0;
+			if (!sets.acp)
+				sets.acp = 0;
+			if (!sets.acw)
+				sets.acw = 0;
+			if (!sets.promo)
+				sets.promo = 0;
+			if (!sets.afm)
+				sets.afm = 0;
+			if (!sets.awl)
+				sets.awl = 0;
+			if (!sets.adr)
+				sets.adr = 0;
+			if (!sets.ael)
+				sets.ael = 0;
+			for (var s in sets)
+				$("#" + s).val(sets[s]);
+		}
+
+		function save_sets() {
+			for (var s in sets)
+				sets[s] = parseInt($("#" + s).val())
+
+			if (typeof(Storage) == "undefined")
+				return;
+			window.localStorage.setItem("mw-sets", JSON.stringify(sets));
+		}		
+
+		function set_tab_visibility(tab, visible) {
+			if (visible) {
+				$("span#" + tab).removeClass("unselected_tab");
+				$("span#" + tab).addClass("selected_tab");
+				$("table.table-right tr." + tab).show();
+			}
+			else {
+				$("span#" + tab).removeClass("selected_tab");
+				$("span#" + tab).addClass("unselected_tab");
+				$("table.table-right tr." + tab).hide();
+			}
+		}
+
+		function bind() {
+			$(".table-head thead tr th").click(function() { sort_by_column($(this).index()); })
+			$("#card_list_table")
+				.on("mouseover", "tr", function() { set_image($(this).attr("code")); })
+				.on("click", "span.minus", function() { minus(this); })
+				.on("click", "span.plus", function() { plus(this); })
+				.on("mouseleave", function() { show_mage(); })
+			$("#search_name, #search_substypes").keyup(fill_data);
+			$("#search_card_school, #search_card_type, #search_included").change(fill_data);
+			$("#select_slot").change(function() { prepare(); });
+			$("#select_mage").change(function() { 
+				select_mage(parseInt($("#select_mage").val())); 
+				ga && ga('send', { hitType: 'event', eventCategory: 'mage', eventAction: 'select', eventLabel: mage.name });				
+			})
+			$("#cok, #core, #tome, #tome2, #dvn, #fvw, #fif, #bg1, #pvs, #lg, #bvw, #acp, #acw, #promo, #afm, #awl, #adr, #ael").change(function() {
+				for (var card_code in _row_cache)
+					update_row(card_code);
+				save_sets()
+			})
+			$("#reset").click(function() {
+				if (!confirm("Are you sure you want to erase current spellbook?"))
+					return;
+				spellbook.cards = {};
+				for (var card_code in _row_cache)
+					update_row(card_code);
+				update_spellbook();
+				ga && ga('send', { hitType: 'event', eventCategory: 'mage', eventAction: 'reset', eventLabel: mage.name });				
+			});
+			$("#clear_filters").click(function() {
+				$("#search_name, #search_substypes, #search_card_school, #search_card_type, #search_included").val("")
+				fill_data();
+			})
+			$("#export").click(function() {
+				download(JSON.stringify(spellbook));
+				ga && ga('send', { hitType: 'event', eventCategory: 'export', eventAction: 'file', eventLabel: mage.name });				
+			});
+			$("#export_fc").click(function() {
+				export_to_forum_code(spellbook)
+				ga && ga('send', { hitType: 'event', eventCategory: 'export', eventAction: 'forum', eventLabel: mage.name });				
+			});
+			$("#import_fc").click(function() {
+				var errors = import_from_clipboard(/\[mage\]A (.*) Spellbook\[\/mage\]/, /\[mwcard.*\](\d) x (.*)\[\/mwcard\]/);
+				if (errors && errors.length)
+					alert(errors.join("\n"))
+				ga && ga('send', { hitType: 'event', eventCategory: 'import', eventAction: 'forum', eventLabel: mage.name });				
+			});
+			$("#import_text").click(function() {
+				var errors = import_from_clipboard(/^A (.*) Spellbook/, /^(\d) (.*)/);
+				if (errors && errors.length)
+					alert(errors.join("\n"))
+				ga && ga('send', { hitType: 'event', eventCategory: 'import', eventAction: 'text', eventLabel: mage.name });				
+			});
+
+			$("#export_text").click(function() {
+				export_to_text(spellbook)
+				ga && ga('send', { hitType: 'event', eventCategory: 'export', eventAction: 'text', eventLabel: mage.name });				
+			});
+			$("#import").click(function() {
+				var cost = update_spellbook();
+				if (cost > 0 && !confirm("Importing will overwrite your current spellbook, are you sure you want to continue?"))
+					return;
+
+				$("#import_file").click();
+				ga && ga('send', { hitType: 'event', eventCategory: 'import', eventAction: 'file', eventLabel: mage.name });				
+			})
+			$("span.tab").click(function() {
+				set_tab_visibility($(this).attr('id'), !$(this).hasClass("selected_tab"));
+			})
+			$("#import_file").change(function(evt) {
+				if (evt.target.files.length != 1)
+					return;
+
+				var reader = new FileReader();
+				reader.onload = function(e) {
+					var m = null;
+					try {
+						m = JSON.parse(e.target.result);
+						if (!m)
+							return;
+						spellbook = m;
+						mage = mages[spellbook.mage];
+						$("#select_mage").val(mages.indexOf(mage));
+						for (var card_code in _row_cache)
+							update_row(card_code);
+						$("#search_name, #search_substypes, #search_card_school, #search_card_type").val("")
+						$("#search_included").val("1")
+						fill_data();
+						sort_by_column([1, 0]);
+						update_spellbook();
+						show_mage();
+					}
+					catch (e) {}
+				}
+				reader.readAsText(evt.target.files[0]);
+			});
+		}
+
+		function create_row(card) {
+			var data_code = card["data-code"];				
+			return _row_cache[data_code] || _create_row(card);
+		}
+
+		function _create_row(card) {
+			var available = available_cards(card);
+			var data_code = card["data-code"];				
+			var el = $.parseHTML([
+				'<tr code="', data_code, '">',
+				'<td class="name', 
+					card["errata"] ? " errata" : "", 
+					card["is_promo"] ? " promo" : "", 
+					available < (spellbook.cards[data_code] | 0) ? " missing" : "",
+					'">', card["name"], '</td>',
+				'<td class="', card["data-type"], '">', card["type"], '</td>',
+				'<td>', card["subtype"], '</td>',
+				'<td>', card["school"], '</td>',
+				'<td>', card["level"], '</td>',
+				'<td>', card["cost"], (card["reveal"] ? "+" + card["reveal"] : ""), '</td>',
+				'<td>', '<span class="minus">-</span>', '<span class="val">', spellbook.cards[data_code] | 0, '</span>', '<span class="plus">+</span>','</td>',
+				'<td>', spell_cost(card, mage), '</td>',
+				'<td>', (spell_cost(card, mage) | 0) * (spellbook.cards[data_code] | 0), '</td>',
+				'<td>', max_spell_count(card, mage), '</td>',
+				'<td>', available, '</td>',
+				'</tr>'
+			].join(""));
+			_row_cache[data_code] = el;
+			return el;
+		}
+
+		function update_row(card_code) {
+			var card = card_map[card_code];
+			var row = _row_cache[card_code];
+			if (!card || !row)
+				return;	
+
+			if (typeof(spell_cost(card, mage)) != "number")
+				spellbook.cards[card_code] = 0;
+			var cnt = spellbook.cards[card_code] | 0;
+
+			$(row).find("td:eq(6)").find(".val").text(cnt);
+			$(row).find("td:eq(7)").html(spell_cost(card, mage));
+			$(row).find("td:eq(8)").html((spell_cost(card, mage) | 0) * cnt);
+			$(row).find("td:eq(9)").html(max_spell_count(card, mage));
+			$(row).find("td:eq(10)").html(available_cards(card));
+
+			save();
+		}
+		function select_mage(idx) {
+			spellbook.mage = idx;
+			mage = mages[idx];	
+			for (var card_code in _row_cache)
+				update_row(card_code);
+			update_spellbook();
+			show_mage();
+			save();
+		}
+
+		function fill_data() {
+			var data = cards;
+			data = filter_by_field("name", $("#search_name").val(), data)
+			data = filter_by_field("type", $("#search_card_type").val(), data)
+//			data = filter_by_field("subtype,data-restriction", $("#search_substypes").val(), data)
+			data = search($("#search_substypes").val(), data)
+			data = filter_by_field("school", $("#search_card_school").val(), data)
+			if ($("#search_included").val() == "1")
+				data = filter_included(data);
+			if ($("#search_included").val() == "2")
+				data = filter_owned(data);
+			if ($("#search_included").val() == "3")
+				data = filter_usable(data);
+
+
+			var $tbody = $('#card_list_table');		
+			$tbody.html("");
+			for (var i = 0; i < data.length; ++i)
+				$(create_row(data[i])).appendTo($tbody);
+		}
+
+		function plus(el) {
+			var card_code = $(el).closest("tr").attr("code");
+
+			spellbook.cards[card_code] ? spellbook.cards[card_code]++ : spellbook.cards[card_code] = 1;
+			spellbook.cards[card_code] = Math.min(max_spell_count(card_map[card_code]), spellbook.cards[card_code]);
+			spellbook.cards[card_code] = Math.min(spellbook.cards[card_code], available_cards(card_map[card_code]));
+
+			update_row(card_code);
+			update_spellbook();
+		}
+
+		function minus(el) {
+			var card_code = $(el).closest("tr").attr("code");
+			if (spellbook.cards[card_code])
+				spellbook.cards[card_code]--;
+			update_row(card_code);
+			update_spellbook();
+		}
+
+		function update_spellbook() {
+			var cost = 0;
+
+			var types_cnt = {
+				equipment: 0,
+				conjuration: 0,
+				creature: 0,
+				enchantment: 0,
+				incantation: 0,
+				attack: 0,
+			}
+			var types_cost = {
+				equipment: 0,
+				conjuration: 0,
+				creature: 0,
+				enchantment: 0,
+				incantation: 0,
+				attack: 0,
+			}
+
+			for (var card_code in spellbook.cards)
+				if (spellbook.cards[card_code] > 0) {
+					var unit_cost = spellbook.cards[card_code] * spell_cost(card_map[card_code], mage);
+					cost += unit_cost;
+					types_cnt[card_map[card_code]["data-type"]] += spellbook.cards[card_code];
+					types_cost[card_map[card_code]["data-type"]] += unit_cost;
+				}
+			$("#cost").text("Spellbook cost: " + cost);
+
+			for (var type in types_cnt) {
+				$("#sum-" + type).text(capitalize(type) + " cost: " + types_cost[type] + " (" + types_cnt[type] + ")");
+			}
+
+
+			return cost;
+		}
+
+		function capitalize(string) {
+		    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+		}
+
+		function filter_by_field(field_names, field_value, data) {
+			if (!field_value)
+				return data;
+
+			field_value = field_value.toLowerCase();
+			field_names = field_names.split(",")
+			var rv = [];
+			for (var i = 0; i < data.length; ++i)
+				for (var j = 0; j < field_names.length; ++j) {
+					var field_name = field_names[j];
+					if (data[i][field_name] && data[i][field_name].toString().toLowerCase().includes(field_value)) {
+						rv.push(data[i]);
+						break;
+					}
+				}
+			return rv;
+		}
+
+		function build_index(card) {
+			var rv = [card.name, card.type]
+			var attribs = card_data[card["data-code"]];
+			if (attribs.attacks)
+				rv = rv.concat(attribs.attacks);
+			if (attribs.traits)
+				rv = rv.concat(attribs.traits)
+			if (attribs.text)
+				rv.push(attribs.text)
+			if (card.subtype)
+				rv.push(card.subtype)
+			if (card["data-restriction"])
+				rv.push(card["data-restriction"])
+			return rv.join(" ").toLowerCase();
+		}
+
+
+		function search(query, data) {
+			if (!query)
+				return data;
+			query = query.toLowerCase().split(" ").filter(function(v) { return v });
+			
+			var rv = [];
+			for (var i = 0; i < data.length; ++i) {
+				if (!data[i].sindex)
+					data[i].sindex = build_index(data[i]);
+
+				for (var j = 0; j < query.length; ++j)
+					if (!data[i].sindex.includes(query[j]))
+						break;
+
+				if (j == query.length)
+					rv.push(data[i])
+			}
+			return rv;
+		}
+
+		function filter_included(data) {
+			var rv = [];
+			for (var i = 0; i < data.length; ++i)
+				if (typeof(spellbook.cards[data[i]["data-code"]]) == "number" && spellbook.cards[data[i]["data-code"]] > 0)
+					rv.push(data[i]);
+			return rv;
+		}
+
+		function filter_owned(data) {
+			var rv = [];
+			for (var i = 0; i < data.length; ++i)
+				if (available_cards(data[i]) > 0)
+					rv.push(data[i]);
+			return rv;
+		}
+
+		function filter_usable(data) {
+			var rv = [];
+			for (var i = 0; i < data.length; ++i)
+				if (available_cards(data[i]) > 0 && max_spell_count(data[i]) > 0)
+					rv.push(data[i]);
+			return rv;
+		}
+
+		function set_image(data_code) {
+			$("#slija").html('<img src="img/' + data_code + '.jpg"/>');
+			var errata = card_map[data_code] ? card_map[data_code]["errata"] : null;
+			$("#errata").html(errata ? "Errata: " + errata : "");
+			
+		}
+
+		function show_mage() {
+			if (!mage)
+				return;
+			$("#slija").html('<img src="img/' + mage.card + '"/>')
+			$("#errata").html("");
+		}
+
+		var spell_type_val = {
+			"equipment": 1,
+			"conjuration": 2,
+			"creature": 3,
+			"enchantment": 4,
+			"incantation": 5,
+			"attack": 6,
+		}
+		function spell_type_cmp(a, b) {
+			var val_a = spell_type_val[a["data-type"]];
+			var val_b = spell_type_val[b["data-type"]];
+			return val_a > val_b ? 1 : val_a < val_b ? -1 : 0;	 			
+		}
+
+		function spell_default_cmp(f) {
+			if (typeof(f) == "function")
+				return function (a, b) { 
+					var va = f(b) | 0, vb = f(a) | 0; //reverse
+					return va > vb ? 1 : va < vb ? -1 : 0; 
+				}
+
+			return function (a, b) { 
+				return a[f] > b[f] ? 1 : a[f] < b[f] ? -1 : 0; 
+			}
+		}
+
+		function composite_cmp(cmps) {
+			return function (a, b) {
+				for (var i = 0; i < cmps.length; ++i) {
+					var v = cmps[i](a, b);
+					if (v != 0)
+						return v;
+				}
+				return 0;
+			}
+		}
+
+		var prev_sort = [];
+		function sort_by_column(column_indexes) {
+			if (column_indexes.constructor === Array)
+				prev_sort = column_indexes
+			else {
+				var idx = prev_sort.indexOf(column_indexes)
+				if (idx != -1)
+					prev_sort.splice(idx, 1);
+				prev_sort.unshift(column_indexes)
+			}
+
+			var cmps = [];
+			for (var i = 0; i < prev_sort.length; ++i)
+				switch (prev_sort[i]) {
+					case 0: cmps.push(spell_default_cmp("name")); break;
+					case 1: cmps.push(spell_type_cmp); break;
+					case 2: cmps.push(spell_default_cmp("subtype")); break;
+					case 3: cmps.push(spell_default_cmp("school")); break;
+					case 4: cmps.push(spell_default_cmp("level")); break;
+					case 5: cmps.push(spell_default_cmp("cost")); break;
+					case 6: cmps.push(spell_default_cmp(function(c) { return spellbook.cards[c["data-code"]] | 0})); break;
+					case 7: cmps.push(spell_default_cmp(spell_cost)); break;
+					case 8: cmps.push(spell_default_cmp(function(c) { return (spellbook.cards[c["data-code"]] | 0) * spell_cost(c)})); break;
+					case 9: cmps.push(spell_default_cmp(max_spell_count)); break;
+					case 10: cmps.push(spell_default_cmp(available_cards)); break;
+				}
+			cards.sort(composite_cmp(cmps));
+			fill_data();
+		}
+
+		function spell_cost(card, m) {
+			if (!m) m = mage;
+			return m.spell_cost(card);
+		}
+
+		function max_spell_count(card) {
+			if (typeof(spell_cost(card, mage)) != "number")
+				return 0;
+
+			var cc = card_count[card["data-code"]];
+			if (cc && typeof(cc.max) == "number")
+				return cc.max;
+
+			return 0;
+		}
+
+		function available_cards(card) {
+			var card_code = card["data-code"];
+			var cc = card_count[card_code];
+			if (!cc)
+				return "N/A";
+
+			var cnt = 0;
+			for (var set in cc) {
+				var sc = parseInt($("#" + set).val());
+				if (typeof(sc) == "number" && sc > 0)
+					cnt += sc * cc[set];
+			}
+			return cnt;
+		}
+
+		function download(data) {
+			window.open("data:application/octet-stream," + encodeURIComponent(data), 'new document');
+		}
+
+		function export_to_forum_code(data) {
+			lines = [
+				"[spellbook]",
+				"[spellbookheader]",
+				"[spellbookname]" + mage.name + "[/spellbookname]",
+				"[mage]A " + mage.name + " Spellbook[/mage]",
+				"[mage]built by http://www.spellbookbuilder.com[/mage]",
+				"[/spellbookheader]",
+				"[spells]"
+			];
+		 
+ 			var types = ["Equipment", "Conjuration", "Creature", "Enchantment", "Incantation", "Attack"];
+ 			for (t in types) {
+ 				var s = [];
+ 				for (c in data.cards) 
+ 					if (data.cards[c] > 0 && card_map[c] && card_map[c]['data-type'] == types[t].toLowerCase())
+ 						s.push(card_map[c])
+ 				s.sort(function(c1, c2) { return c1.name > c2.name ? 1 : -1 });
+ 				lines.push("[spellclass]" + types[t] + "[/spellclass]")
+ 				for (i in s)
+ 					lines.push("[mwcard=" + s[i]["data-code"] + "]" + data.cards[s[i]["data-code"]] + " x " + s[i]["name"] + "[/mwcard]")
+			}
+			lines.push(
+				"[/spells]",
+				"[cost]Total cost: " + update_spellbook() + " pts[/cost]",
+				"[/spellbook]"
+			)
+
+			copy_to_clipboard(lines.join("\n"));
+		}
+
+		function export_to_text(data) {
+			lines = [
+				"A " + mage.name + " Spellbook",
+				"built by http://www.spellbookbuilder.com",
+				"",
+				"Total cost: " + update_spellbook() + " pts",
+				""
+			];
+		 
+ 			var types = ["Equipment", "Conjuration", "Creature", "Enchantment", "Incantation", "Attack"];
+ 			for (t in types) {
+ 				var s = [];
+ 				for (c in data.cards) 
+ 					if (data.cards[c] > 0 && card_map[c] && card_map[c]['data-type'] == types[t].toLowerCase())
+ 						s.push(card_map[c])
+ 				s.sort(function(c1, c2) { return c1.name > c2.name ? 1 : -1 });
+ 				lines.push("--- " + types[t] + " ---")
+ 				for (i in s)
+ 					lines.push(data.cards[s[i]["data-code"]] + " " + s[i]["name"])
+ 				lines.push("")
+			}
+
+			copy_to_clipboard(lines.join("\n"));
+		}
+
+
+		function find_mage(mage_name) {
+			for (var i = 0; i < mages.length; ++i)
+				if (mages[i].name == mage_name)
+					return i;
+
+			for (var i = 0; i < mages.length; ++i)
+				if (distance(mages[i].name, mage_name) > 0.9)
+					return i;
+
+			return -1;
+		}
+
+		function find_card(card_name) {
+			match = {c: null, s: 0};
+			for (var i = 0; i < cards.length; ++i) {
+			    var s = distance(cards[i].name, card_name);
+			    if (s > match.s)
+			    	match = {c: cards[i], s: s}
+			}
+			if (match.s > 0.9)
+				return match.c;
+			return null;
+		}
+
+		function import_from_clipboard(m_re, s_re) {
+			var cost = update_spellbook();
+			if (cost > 0 && !confirm("Importing will overwrite your current spellbook, are you sure you want to continue?"))
+				return;
+
+			open_modal(function(text) {
+				process_inport(text, m_re, s_re);
+			});
+		}
+
+		function process_inport(text, m_re, s_re) {
+			var re=/\r\n|\n\r|\n|\r/g;
+			var lines = text.replace(re, "\n").split("\n").filter(function(l) { return l });
+			if (!lines.length)
+				return ["No text detected"];
+
+			var errors = [];
+			var sb = {cards: {}, mage: -1 };
+
+			for (var i = 0; i < lines.length; ++i) {
+				var mm = lines[i].match(m_re)
+				if (mm)
+					sb.mage = find_mage(mm[1]);
+
+				var sm = lines[i].match(s_re)
+				if (!sm) continue;
+
+				var c = find_card(sm[2])
+				c ? sb.cards[c["data-code"]] = parseInt(sm[1]) : errors.push("Cound not find " + sm[2])
+			}
+			
+			if (sb.mage == -1)
+				return ["Could not detect mage type you wanted to import"];
+
+			spellbook = sb;
+			mage = mages[spellbook.mage];
+			$("#select_mage").val(mages.indexOf(mage));
+			for (var card_code in _row_cache)
+				update_row(card_code);
+			$("#search_name, #search_substypes, #search_card_school, #search_card_type").val("")
+			$("#search_included").val("1")
+			fill_data();
+			sort_by_column([1, 0]);
+			update_spellbook();
+			show_mage();
+			return errors;
+		}
+
+		function copy_to_clipboard(text) {
+            var target = document.createElement("textarea");
+            target.style.position = "absolute";
+            target.style.left = "-9999px";
+            target.style.top = "0";
+            document.body.appendChild(target);
+	        target.textContent = text;
+			target.focus();
+			target.setSelectionRange(0, target.value.length);
+			var succeed = true;
+			try {
+	     	  	succeed = document.execCommand("copy");
+		    } catch(e) {
+				//window.prompt("Copy to clipboard: Ctrl+C, Enter", text);
+		        succeed = false;
+		    }
+     	  	document.body.removeChild(target);
+     	  	if (!succeed)
+     	  		alert("Could not export the spellbook to you clipboard. Try using a different (or newer) browser.")
+     	  	else
+     	  		alert("Spellbook is on your clipboard.")
+		}
+
+	</script>
+
+</head><body>
+
+<div style="width:20%; height: 100%; position: absolute; left: 80%; background:#333">
+	<table class="table-right" cellspacing="0" width="100%">
+		<tbody><tr class="always">
+			<td colspan="2">
+				<span class="tab" id="book">Spellbook</span> | 
+				<span class="tab" id="sets">Sets</span>
+			</td>
+		</tr>
+		<tr class="book">
+			<td colspan="2">
+			    <select id="select_mage" class="search_init">
+					<option value="0">Wizard (Air)</option>
+					<option value="1">Beastmaster</option>
+					<option value="2">Warlock</option>
+					<option value="3">Priestess</option>
+					<option value="4">Priest</option>
+					<option value="5">Forcemaster</option>
+					<option value="6">Johktari Beastmaster</option>
+					<option value="7">Warlord</option>
+					<option value="8">Druid</option>
+					<option value="9">Necromancer</option>
+					<option value="10">Anvil Throne Warlord</option>
+					<option value="11">Adramelech Warlock</option>
+					<option value="12">Paladin</option>
+					<option value="13">Siren</option>
+					<option value="14">Academy Wizard</option>
+					<option value="15">Academy Warlock</option>
+					<option value="16">Academy Beastmaster</option>
+					<option value="17">Academy Priestess</option>
+					<option value="18">Academy Forcemaster</option>
+					<option value="19">Academy Warlord</option>
+					<option value="20">Academy Druid</option>
+					<option value="21">Academy Elementalist</option>
+			    </select>
+				 <select id="select_slot" class="search_init">
+					<option value="1">Slot 1</option>
+					<option value="2">Slot 2</option>
+					<option value="3">Slot 3</option>
+					<option value="4">Slot 4</option>
+					<option value="5">Slot 5</option>
+					<option value="6">Slot 6</option>
+					<option value="7">Slot 7</option>
+					<option value="8">Slot 8</option>
+					<option value="9">Slot 9</option>
+					<option value="10">Slot 10</option>
+					<option value="11">Slot 11</option>
+					<option value="12">Slot 12</option>
+					<option value="13">Slot 13</option>
+					<option value="14">Slot 14</option>
+					<option value="15">Slot 15</option>
+					<option value="16">Slot 16</option>
+			    </select>
+			</td>
+		</tr>
+		<tr class="book">
+			<td colspan="2"> 
+				<button type="button" id="reset">Reset</button>
+				<button type="button" id="export">File Export</button>
+				<button type="button" id="import">File Import</button>
+				<input type="file" id="import_file" name="files[]" style="display: none">
+				<br>
+				<button type="button" id="export_fc">Forum export</button>
+				<button type="button" id="import_fc">Forum import</button>
+				<br>
+				<button type="button" id="export_text">Text export</button>
+				<button type="button" id="import_text">Text import</button>
+
+			</td>			
+		</tr>
+		<tr>
+			<td colspan="2"> 
+				<span id="cost" style="font-size: 16px; font-weight: bolder"></span>
+			</td>			
+		</tr>
+		<tr class="book">
+			<td colspan="2"> 
+				<span id="sum-equipment" style="font-size: 16px; font-weight: bolder"></span><br>
+			</td>			
+		</tr>
+		<tr class="book">
+			<td colspan="2"> 
+				<span id="sum-conjuration" style="font-size: 16px; font-weight: bolder"></span><br>
+			</td>			
+		</tr>
+		<tr class="book">
+			<td colspan="2"> 
+				<span id="sum-creature" style="font-size: 16px; font-weight: bolder"></span><br>
+			</td>			
+		</tr>
+		<tr class="book">
+			<td colspan="2"> 
+				<span id="sum-enchantment" style="font-size: 16px; font-weight: bolder"></span><br>
+			</td>			
+		</tr>
+		<tr class="book">
+			<td colspan="2"> 
+				<span id="sum-incantation" style="font-size: 16px; font-weight: bolder"></span><br>
+			</td>			
+		</tr>
+		<tr class="book">
+			<td colspan="2"> 
+				<span id="sum-attack" style="font-size: 16px; font-weight: bolder"></span><br>
+			</td>			
+		</tr>
+		<tr class="sets">
+			<td width="66%">Core Set:</td>
+			<td> 
+				<select id="core" class="set_select">
+					<option value="0">0</option> 
+					<option value="1">1</option> 
+					<option value="2">2</option> 
+					<option value="3">3</option> 
+				</select>
+			</td>
+		</tr>
+		<tr class="sets">
+			<td>Core Spell Tome 1:</td>
+			<td>
+				<select id="tome" class="set_select">
+					<option value="0">0</option> 
+					<option value="1">1</option> 
+					<option value="2">2</option> 
+					<option value="3">3</option> 
+				</select>
+			</td>
+		</tr>
+		<tr class="sets">
+			<td>Core Spell Tome 2:</td>
+			<td>
+				<select id="tome2" class="set_select">
+					<option value="0">0</option> 
+					<option value="1">1</option> 
+					<option value="2">2</option> 
+					<option value="3">3</option> 
+				</select>
+			</td>
+		</tr>
+		<tr class="sets">
+			<td>Conquest of Kumanjaro:</td>
+			<td>
+				<select id="cok" class="set_select">
+					<option value="0">0</option> 
+					<option value="1">1</option> 
+					<option value="2">2</option> 
+					<option value="3">3</option> 
+				</select>
+			</td>
+		</tr>
+		<tr class="sets">
+			<td>Druid vs. Necromancer:</td>
+			<td>
+				<select id="dvn" class="set_select">
+					<option value="0">0</option> 
+					<option value="1">1</option> 
+					<option value="2">2</option> 
+					<option value="3">3</option> 
+				</select>
+			</td>
+		</tr>
+		<tr class="sets">
+			<td>Forcemaster vs. Warlord:</td>
+			<td>
+				<select id="fvw" class="set_select">
+					<option value="0">0</option> 
+					<option value="1">1</option> 
+					<option value="2">2</option> 
+					<option value="3">3</option> 
+				</select>
+			</td>
+		</tr>
+		<tr class="sets">
+			<td>Forged In Fire Spell:</td>
+			<td>
+				<select id="fif" class="set_select">
+					<option value="0">0</option> 
+					<option value="1">1</option> 
+					<option value="2">2</option> 
+					<option value="3">3</option> 
+				</select>
+			</td>
+		</tr>
+		<tr class="sets">
+			<td>Battlegrounds Domination:</td>
+			<td>
+				<select id="bg1" class="set_select">
+					<option value="0">0</option> 
+					<option value="1">1</option> 
+					<option value="2">2</option> 
+					<option value="3">3</option> 
+				</select>
+			</td>
+		</tr>
+		<tr class="sets">
+			<td>Paladin vs. Siren:</td>
+			<td>
+				<select id="pvs" class="set_select">
+					<option value="0">0</option> 
+					<option value="1">1</option> 
+					<option value="2">2</option> 
+					<option value="3">3</option> 
+				</select>
+			</td>
+		</tr>
+		<tr class="sets">
+			<td>Lost Grimoire:</td>
+			<td>
+				<select id="lg" class="set_select">
+					<option value="0">0</option> 
+					<option value="1">1</option> 
+					<option value="2">2</option> 
+					<option value="3">3</option> 
+				</select>
+			</td>
+		</tr>
+		<tr class="sets">
+			<td>Academy Core Set:</td>
+			<td>
+				<select id="bvw" class="set_select">
+					<option value="0">0</option> 
+					<option value="1">1</option> 
+					<option value="2">2</option> 
+					<option value="3">3</option> 
+				</select>
+			</td>
+		</tr>
+		<tr class="sets">
+			<td>Academy Priestess Expansion:</td>
+			<td>
+				<select id="acp" class="set_select">
+					<option value="0">0</option> 
+					<option value="1">1</option> 
+					<option value="2">2</option> 
+					<option value="3">3</option> 
+				</select>
+			</td>
+		</tr>
+		<tr class="sets">
+			<td>Academy Warlock Expansion:</td>
+			<td>
+				<select id="acw" class="set_select">
+					<option value="0">0</option> 
+					<option value="1">1</option> 
+					<option value="2">2</option> 
+					<option value="3">3</option> 
+				</select>
+			</td>
+		</tr>
+		<tr class="sets">
+			<td>Academy Forcemaster Expansion:</td>
+			<td>
+				<select id="afm" class="set_select">
+					<option value="0">0</option> 
+					<option value="1">1</option> 
+					<option value="2">2</option> 
+					<option value="3">3</option> 
+				</select>
+			</td>
+		</tr>
+		<tr class="sets">
+			<td>Academy Warlord Expansion:</td>
+			<td>
+				<select id="awl" class="set_select">
+					<option value="0">0</option> 
+					<option value="1">1</option> 
+					<option value="2">2</option> 
+					<option value="3">3</option> 
+				</select>
+			</td>
+		</tr>		
+		<tr class="sets">
+			<td>Academy Druid Expansion:</td>
+			<td>
+				<select id="adr" class="set_select">
+					<option value="0">0</option> 
+					<option value="1">1</option> 
+					<option value="2">2</option> 
+					<option value="3">3</option> 
+				</select>
+			</td>
+		</tr>		
+		<tr class="sets">
+			<td>Academy Elementalist Expansion:</td>
+			<td>
+				<select id="ael" class="set_select">
+					<option value="0">0</option> 
+					<option value="1">1</option> 
+					<option value="2">2</option> 
+					<option value="3">3</option> 
+				</select>
+			</td>
+		</tr>		
+		<tr class="sets">
+			<td>Promos:</td>
+			<td>
+				<select id="promo" class="set_select">
+					<option value="0">0</option> 
+					<option value="1">1</option> 
+					<option value="2">2</option> 
+					<option value="3">3</option> 
+				</select>
+			</td>
+		</tr>
+		<tr><td id="slija" colspan="2"></td></tr>
+		<tr><td id="errata" colspan="2" style="text-align: center"></td></tr>
+	</tbody></table>
+
+</div>
+
+<div style="width:80%; overflow:scroll; height:100%; background:#E4D2A1;">
+	<table class="table-head" cellspacing="0" width="100%">
+	    <thead>
+	        <tr>
+	            <th>Card Name</th>
+	            <th>Type</th>
+	            <th>Subtype</th>
+	            <th>School</th>
+	            <th>Level</th>
+	            <th>Cast</th>
+	            <th>Used</th>
+	            <th>Cost</th>
+	            <th>Total</th>
+	            <th>Max</th>
+	            <th>Own</th>
+	        </tr>
+	    </thead>
+	</table>
+
+	<table id="card_list_table" class="table-main" cellspacing="0" width="100%">
+	    <tbody>
+	    </tbody>
+	</table>
+
+	<table class="table-foot" cellspacing="0" width="100%">
+	    <thead id="#cardListFooter">
+	        <tr>
+	            <th rowspan="1" colspan="1"><input type="text" id="search_name" placeholder="Search name" class="search_init"></th>
+	            <th rowspan="1" colspan="1">
+	                <select id="search_card_type" class="search_init">
+	                    <option value>All</option>
+	                    <option value="Equipment">Equipment</option>
+	                    <option value="Conjuration">Conjuration</option>
+	                    <option value="Creature">Creature</option>
+	                    <option value="Enchantment">Enchantment</option>
+	                    <option value="Incantation">Incantation</option>
+	                    <option value="Attack">Attack</option>
+	                </select>
+	            </th>
+	            <th rowspan="1" colspan="1"><input type="text" id="search_substypes" placeholder="Search everything" class="search_init"></th>
+
+	            <th rowspan="1" colspan="1">
+	                <select id="search_card_school" class="search_init">
+	                    <option value>All</option>
+	                    <option value="Air">Air</option>
+	                    <option value="Water">Water</option>
+	                    <option value="Earth">Earth</option>
+	                    <option value="Fire">Fire</option>
+	                    <option value="Holy">Holy</option>
+	                    <option value="Dark">Dark</option>
+	                    <option value="Nature">Nature</option>
+	                    <option value="Arcane">Arcane</option>
+	                    <option value="War">War</option>
+	                    <option value="Mind">Mind</option>
+	                </select>
+	            </th>
+	            
+	            <th rowspan="1" colspan="1"></th>
+	            <th rowspan="1" colspan="1"></th>
+	            <th rowspan="1" colspan="1">
+	                <select id="search_included" class="search_init">
+	                    <option value>All</option>
+	                    <option value="1">Used</option>
+	                    <option value="2">Owned</option>
+	                    <option value="3">Usable</option>
+	                </select>
+	            </th>
+	            <th rowspan="1" colspan="1"></th>
+	            <th rowspan="1" colspan="1"></th>
+	            <th rowspan="1" colspan="1"></th>
+	            <th rowspan="1" colspan="1">
+	            	<button type="button" id="clear_filters">X</button>
+	            </th>
+	        </tr>
+	    </thead>
+	</table>
+</div>
+
+<div id="modal_wrapper">
+	<div id="modal_window">
+
+		<p>Paste the spellbook here:</p>
+		<p><textarea id="modal_text" cols="48" rows="8"></textarea></p>
+		<p>
+			<button type="button" id="modal_cancel">Cancel</button>
+			<button type="button" id="modal_ok">Import</button>
+		</p>
+
+	</div> <!-- #modal_window -->
+</div> <!-- #modal_wrapper -->
+
+
+</body></html>
